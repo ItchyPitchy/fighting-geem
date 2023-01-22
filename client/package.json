@@ -1,0 +1,30 @@
+{
+  "name": "client",
+  "version": "1.0.0",
+  "description": "",
+  "source": "index.html",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "parcel",
+    "build": "parcel build",
+    "lint": "eslint src",
+    "lint:fix": "eslint src --fix"
+  },
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@parcel/transformer-sass": "^2.8.3",
+    "@types/three": "^0.148.0",
+    "@typescript-eslint/eslint-plugin": "^5.48.2",
+    "@typescript-eslint/parser": "^5.48.2",
+    "buffer": "^5.7.1",
+    "eslint": "^8.32.0",
+    "parcel": "^2.8.3",
+    "typescript": "^4.9.4"
+  },
+  "dependencies": {
+    "geem-core": "file:../core",
+    "socket.io-client": "^4.5.4",
+    "three": "^0.148.0"
+  }
+}
