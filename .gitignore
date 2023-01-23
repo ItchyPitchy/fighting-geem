@@ -1,0 +1,8 @@
+client/node_modules
+client/.parcel-cache
+client/dist
+server/node_modules
+core/node_modules
+core/dist
+core/.parcel-cache
+.vscode

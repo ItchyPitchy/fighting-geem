@@ -1,7 +1,9 @@
-import { State } from 'geem-core'
+import { EntityType, State } from 'geem-core'
+import { Entity } from './Entities/Entity'
 import { Socket } from 'socket.io-client'
-import { AmbientLight, BoxGeometry, Mesh, MeshBasicMaterial, PerspectiveCamera, Scene, WebGLRenderer } from 'three'
+import { AmbientLight, BoxGeometry, Mesh, MeshBasicMaterial, PerspectiveCamera, Scene, WebGLRenderer, Object3D } from 'three'
 import { InputHandler } from './InputHandler'
+import { Player } from './Entities/Player'
 
 export class Game {
   private running = false
@@ -10,6 +12,8 @@ export class Game {
   private renderer: WebGLRenderer
   private inputHandler: InputHandler
   private players: Mesh[] = []
+  
+  private entities: Entity[] = []
 
   constructor(canvas: HTMLCanvasElement, socket: Socket) {
     this.renderer = new WebGLRenderer({ canvas: canvas })
@@ -22,43 +26,50 @@ export class Game {
     this.scene.add(light)
     this.inputHandler = new InputHandler(socket)
 
-    socket.on('joined', (state: State) => {
-      for (const player of state.players) {
-        const geometry = new BoxGeometry(1, 1, 1)
-        const material = new MeshBasicMaterial({ color: 0x00ff00 })
-        const cube = new Mesh(geometry, material)
-        cube.position.set(player.position.x, player.position.y, 0)
-        cube.name = player.id
-        this.players.push(cube)
-        this.scene.add(cube)
-      }
-    })
+    window.addEventListener('resize', this.onResize.bind(this))
 
     socket.on('state', (state: State) => {
-      console.log(state.players.length)
-      for (const player of state.players) {
-        const mesh = this.players.find(x => x.name === player.id)
-                
-        if (mesh) {
-          mesh.position.set(player.position.x, player.position.y, 0)
+      console.log(this.scene.children)
+
+      const objectsForDeletion = this.entities.filter((entity) => !state.entities.find((serverEntity) => serverEntity.id === entity.id))
+      for (const objectForDeletion of objectsForDeletion) {
+        const index = this.entities.indexOf(objectForDeletion)
+        this.entities.splice(index, 1)
+        this.scene.remove(objectForDeletion.object)
+      }
+
+      for (const serverEntity of state.entities) {
+        const entity = this.entities.find(entity => serverEntity.id === entity.id)
+
+        if (entity) {
+          entity.object.position.set(serverEntity.position.x, serverEntity.position.y, 0)
         } else {
-          const geometry = new BoxGeometry(1, 1, 1)
-          const material = new MeshBasicMaterial({ color: 0x00ff00 })
-          const cube = new Mesh(geometry, material)
-          cube.position.set(player.position.x, player.position.y, 0)
-          cube.name = player.id
-          this.players.push(cube)
-          this.scene.add(cube) 
+          switch (serverEntity.type) {
+            case EntityType.PLAYER: {
+              const geometry = new BoxGeometry(1, 1, 1)
+              const material = new MeshBasicMaterial({ color: 0x00ff00 })
+              const cube = new Mesh(geometry, material)
+              cube.position.set(serverEntity.position.x, serverEntity.position.y, 0)
+              
+              this.entities.push(new Player(serverEntity.id, cube))
+              this.scene.add(cube)
+
+              break
+            }
+            case EntityType.PUNCH: {
+              const geometry = new BoxGeometry(1, 1, 1)
+              const material = new MeshBasicMaterial({ color: 0xff0000 })
+              const cube = new Mesh(geometry, material)
+              cube.position.set(serverEntity.position.x, serverEntity.position.y, 0)
+              
+              this.entities.push(new Player(serverEntity.id, cube))
+              this.scene.add(cube)
+
+              break
+            }
+          }
         }
       }
-    })
-
-    socket.on('disconnected', (id: string) => {
-      const index = this.players.findIndex((x) => x.name === id)
-
-      const [player] = this.players.splice(index, 1)
-
-      this.scene.remove(player)
     })
   }
 
@@ -74,5 +85,11 @@ export class Game {
   private update() {
     this.renderer.render(this.scene, this.camera)
     requestAnimationFrame(this.update.bind(this))
+  }
+
+  private onResize() {
+    this.renderer.setSize(window.innerWidth, window.innerHeight)
+    this.camera.aspect = window.innerWidth / window.innerHeight
+    this.camera.updateProjectionMatrix()
   }
 }

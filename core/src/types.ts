@@ -1,11 +1,15 @@
+import { Entity } from '../../server/src/Entities/Entity'
+
 export type State = {
-  players: Player[]
+  players: string[]
+  entities: Entity[]
 }
 
-export type Player = {
-  id: string
-  position: {
-    x: number
-    y: number
-  }
+export enum EntityType {
+  PLAYER,
+  PUNCH,
+}
+
+export enum ComponentType {
+  TEMPORARY,
 }

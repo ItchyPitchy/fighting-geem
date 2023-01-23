@@ -1,10 +1,11 @@
 {
-  "name": "core",
+  "name": "geem-core",
   "version": "1.0.0",
   "description": "",
-  "module": "dist/index.js",
+  "module": "dist/index.mjs",
   "source": "src/index.ts",
   "types": "dist/index.d.ts",
+  "main": "dist/index.js",
   "scripts": {
     "build": "parcel build",
     "lint": "eslint src",

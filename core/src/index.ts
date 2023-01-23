@@ -1,6 +1,10 @@
-import type { State, Player } from './types'
+import type { State } from './types'
+import { EntityType, ComponentType } from './types'
+import { Vector } from './Vector'
 
 export {
   State,
-  Player,
+  EntityType,
+  Vector,
+  ComponentType,
 }
