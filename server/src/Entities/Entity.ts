@@ -5,7 +5,7 @@ import { Component } from '../Components/Component'
 export type Constructor<T> = new (...args: any[]) => T
 
 export class Entity {
-  protected readonly components: Component[] = []
+  public readonly components: Component[] = []
 
   constructor(
     public readonly id: string,

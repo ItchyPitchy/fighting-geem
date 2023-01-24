@@ -1,10 +1,10 @@
 import { Server } from 'socket.io'
-import { State } from 'geem-core'
 import { Punch } from './Entities/Punch'
 import { DamageSystem } from './Systems/DamageSystem'
 import { VelocitySystem } from './Systems/VelocitySystem'
 import { Temporary } from './Components/Temporary'
 import { Player } from './Entities/Player'
+import { Entity } from './Entities/Entity'
 
 const systems = [
   new DamageSystem(),
@@ -17,6 +17,11 @@ const io = new Server({
     methods: ['GET', 'POST'],
   }
 })
+
+export type State = {
+  players: string[]
+  entities: Entity[]
+}
 
 const state: State = {
   players: [],
