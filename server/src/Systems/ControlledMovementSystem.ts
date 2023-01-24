@@ -7,18 +7,19 @@ export class ControlledMovementSystem extends System {
     super()
   }
 
-  public appliesTo(gameObject: Entity): boolean {
-    return gameObject.hasComponent(ControlledMovement)
+  public appliesTo(entity: Entity): boolean {
+    return entity.hasComponent(ControlledMovement)
   }
 
   public update(dt: number, entities: Entity[]): void {
     for (const entity of entities) {
       const controlledMovementComponent = entity.getComponent(ControlledMovement)
       const movement = controlledMovementComponent.movement
-      if (movement.size === 0) return;
+
+      if (movement.size === 0) return
       
-      let direction = new Vector(0, 0)
-      const speed = controlledMovementComponent.speed;
+      const direction = new Vector(0, 0)
+      const speed = controlledMovementComponent.speed
       
       if (movement.has(Movement.UP)) {
         direction.add(new Vector(0, 1))
@@ -36,9 +37,8 @@ export class ControlledMovementSystem extends System {
         direction.add(new Vector(1, 0))
       }
 
-      
       if (direction.length() > 0) {
-        entity.position.add(direction.normalize().multiplyScalar(speed).multiplyScalar(dt * 0.001))
+        entity.position.add(direction.clone().normalize().multiplyScalar(speed).multiplyScalar(dt * 0.001))
       }
       movement.clear()
     }

@@ -1,460 +1,341 @@
-//@ts-nocheck
 
 export class Vector {
+  public isVector2: boolean
+
+  constructor(public x: number, public y: number) {
+    this.isVector2 = true
+  }
+
+  get width() {
+    return this.x
+  }
+
+  set width(value: number) {
+    this.x = value
+  }
+
+  get height() {
+    return this.y
+  }
+
+  set height(value: number) {
+    this.y = value
+  }
+
+  set(x: number, y: number) {
+    this.x = x
+    this.y = y
+
+    return this
+  }
 
-	constructor( public readonly x: number, public readonly y: number ) {
+  setScalar(scalar: number) {
+    this.x = scalar
+    this.y = scalar
 
-		Vector.prototype.isVector2 = true;
-	}
+    return this
+  }
 
-	get width() {
+  setX(x: number) {
+    this.x = x
 
-		return this.x;
+    return this
+  }
 
-	}
+  setY(y: number) {
+    this.y = y
 
-	set width( value ) {
+    return this
+  }
 
-		this.x = value;
+  setComponent(index: number, value: number) {
+    switch (index) {
+    case 0:
+      this.x = value
+      break
+    case 1:
+      this.y = value
+      break
+    default:
+      throw new Error('index is out of range: ' + index)
+    }
 
-	}
+    return this
+  }
 
-	get height() {
+  getComponent(index: number) {
+    switch (index) {
+    case 0:
+      return this.x
+    case 1:
+      return this.y
+    default:
+      throw new Error('index is out of range: ' + index)
+    }
+  }
 
-		return this.y;
+  clone() {
+    return new Vector(this.x, this.y)
+  }
 
-	}
+  copy(v: Vector) {
+    this.x = v.x
+    this.y = v.y
 
-	set height( value ) {
+    return this
+  }
 
-		this.y = value;
+  add(v: Vector) {
+    this.x += v.x
+    this.y += v.y
 
-	}
+    return this
+  }
 
-	set( x, y ) {
+  addScalar(s: number) {
+    this.x += s
+    this.y += s
 
-		this.x = x;
-		this.y = y;
+    return this
+  }
 
-		return this;
+  addVectors(a: Vector, b: Vector) {
+    this.x = a.x + b.x
+    this.y = a.y + b.y
 
-	}
+    return this
+  }
 
-	setScalar( scalar ) {
+  addScaledVector(v: Vector, s: number) {
+    this.x += v.x * s
+    this.y += v.y * s
 
-		this.x = scalar;
-		this.y = scalar;
+    return this
+  }
 
-		return this;
+  sub(v: Vector) {
+    this.x -= v.x
+    this.y -= v.y
 
-	}
+    return this
+  }
 
-	setX( x ) {
+  subScalar(s: number) {
+    this.x -= s
+    this.y -= s
 
-		this.x = x;
+    return this
+  }
 
-		return this;
+  subVectors(a: Vector, b: Vector) {
+    this.x = a.x - b.x
+    this.y = a.y - b.y
 
-	}
+    return this
+  }
 
-	setY( y ) {
+  multiply(v: Vector) {
+    this.x *= v.x
+    this.y *= v.y
 
-		this.y = y;
+    return this
+  }
 
-		return this;
+  multiplyScalar(scalar: number) {
+    this.x *= scalar
+    this.y *= scalar
 
-	}
+    return this
+  }
 
-	setComponent( index, value ) {
+  divide(v: Vector) {
+    this.x /= v.x
+    this.y /= v.y
 
-		switch ( index ) {
+    return this
+  }
 
-			case 0: this.x = value; break;
-			case 1: this.y = value; break;
-			default: throw new Error( 'index is out of range: ' + index );
+  divideScalar(scalar: number) {
+    return this.multiplyScalar(1 / scalar)
+  }
 
-		}
+  min(v: Vector) {
+    this.x = Math.min(this.x, v.x)
+    this.y = Math.min(this.y, v.y)
 
-		return this;
+    return this
+  }
 
-	}
+  max(v: Vector) {
+    this.x = Math.max(this.x, v.x)
+    this.y = Math.max(this.y, v.y)
 
-	getComponent( index ) {
+    return this
+  }
 
-		switch ( index ) {
+  clamp(min: Vector, max: Vector) {
+    // assumes min < max, componentwise
 
-			case 0: return this.x;
-			case 1: return this.y;
-			default: throw new Error( 'index is out of range: ' + index );
+    this.x = Math.max(min.x, Math.min(max.x, this.x))
+    this.y = Math.max(min.y, Math.min(max.y, this.y))
 
-		}
+    return this
+  }
 
-	}
+  clampScalar(minVal: number, maxVal: number) {
+    this.x = Math.max(minVal, Math.min(maxVal, this.x))
+    this.y = Math.max(minVal, Math.min(maxVal, this.y))
 
-	clone() {
+    return this
+  }
 
-		return new this.constructor( this.x, this.y );
+  clampLength(min: number, max: number) {
+    const length = this.length()
 
-	}
+    return this.divideScalar(length || 1).multiplyScalar(
+      Math.max(min, Math.min(max, length))
+    )
+  }
 
-	copy( v ) {
+  floor() {
+    this.x = Math.floor(this.x)
+    this.y = Math.floor(this.y)
 
-		this.x = v.x;
-		this.y = v.y;
+    return this
+  }
 
-		return this;
+  ceil() {
+    this.x = Math.ceil(this.x)
+    this.y = Math.ceil(this.y)
 
-	}
+    return this
+  }
 
-	add( v ) {
+  round() {
+    this.x = Math.round(this.x)
+    this.y = Math.round(this.y)
 
-		this.x += v.x;
-		this.y += v.y;
+    return this
+  }
 
-		return this;
+  roundToZero() {
+    this.x = this.x < 0 ? Math.ceil(this.x) : Math.floor(this.x)
+    this.y = this.y < 0 ? Math.ceil(this.y) : Math.floor(this.y)
 
-	}
+    return this
+  }
 
-	addScalar( s ) {
+  negate() {
+    this.x = -this.x
+    this.y = -this.y
 
-		this.x += s;
-		this.y += s;
+    return this
+  }
 
-		return this;
+  dot(v: Vector) {
+    return this.x * v.x + this.y * v.y
+  }
 
-	}
+  cross(v: Vector) {
+    return this.x * v.y - this.y * v.x
+  }
 
-	addVectors( a, b ) {
+  lengthSq() {
+    return this.x * this.x + this.y * this.y
+  }
 
-		this.x = a.x + b.x;
-		this.y = a.y + b.y;
+  length() {
+    return Math.sqrt(this.x * this.x + this.y * this.y)
+  }
 
-		return this;
+  manhattanLength() {
+    return Math.abs(this.x) + Math.abs(this.y)
+  }
 
-	}
+  normalize() {
+    return this.divideScalar(this.length() || 1)
+  }
 
-	addScaledVector( v, s ) {
+  angle() {
+    // computes the angle in radians with respect to the positive x-axis
 
-		this.x += v.x * s;
-		this.y += v.y * s;
+    const angle = Math.atan2(-this.y, -this.x) + Math.PI
 
-		return this;
+    return angle
+  }
 
-	}
+  distanceTo(v: Vector) {
+    return Math.sqrt(this.distanceToSquared(v))
+  }
 
-	sub( v ) {
+  distanceToSquared(v: Vector) {
+    const dx = this.x - v.x,
+      dy = this.y - v.y
+    return dx * dx + dy * dy
+  }
 
-		this.x -= v.x;
-		this.y -= v.y;
+  manhattanDistanceTo(v: Vector) {
+    return Math.abs(this.x - v.x) + Math.abs(this.y - v.y)
+  }
 
-		return this;
+  setLength(length: number) {
+    return this.normalize().multiplyScalar(length)
+  }
 
-	}
+  lerp(v: Vector, alpha: number) {
+    this.x += (v.x - this.x) * alpha
+    this.y += (v.y - this.y) * alpha
 
-	subScalar( s ) {
+    return this
+  }
 
-		this.x -= s;
-		this.y -= s;
+  lerpVectors(v1: Vector, v2: Vector, alpha: number) {
+    this.x = v1.x + (v2.x - v1.x) * alpha
+    this.y = v1.y + (v2.y - v1.y) * alpha
 
-		return this;
+    return this
+  }
 
-	}
+  equals(v: Vector) {
+    return v.x === this.x && v.y === this.y
+  }
 
-	subVectors( a, b ) {
+  fromArray(array: number[], offset = 0) {
+    this.x = array[offset]
+    this.y = array[offset + 1]
 
-		this.x = a.x - b.x;
-		this.y = a.y - b.y;
+    return this
+  }
 
-		return this;
+  toArray(array: number[] = [], offset = 0) {
+    array[offset] = this.x
+    array[offset + 1] = this.y
 
-	}
+    return array
+  }
 
-	multiply( v ) {
+  rotateAround(center: Vector, angle: number) {
+    const c = Math.cos(angle)
+    const s = Math.sin(angle)
 
-		this.x *= v.x;
-		this.y *= v.y;
+    const x = this.x - center.x
+    const y = this.y - center.y
 
-		return this;
+    this.x = x * c - y * s + center.x
+    this.y = x * s + y * c + center.y
 
-	}
+    return this
+  }
 
-	multiplyScalar( scalar ) {
+  random() {
+    this.x = Math.random()
+    this.y = Math.random()
 
-		this.x *= scalar;
-		this.y *= scalar;
+    return this
+  }
 
-		return this;
-
-	}
-
-	divide( v ) {
-
-		this.x /= v.x;
-		this.y /= v.y;
-
-		return this;
-
-	}
-
-	divideScalar( scalar ) {
-
-		return this.multiplyScalar( 1 / scalar );
-
-	}
-
-	applyMatrix3( m ) {
-
-		const x = this.x, y = this.y;
-		const e = m.elements;
-
-		this.x = e[ 0 ] * x + e[ 3 ] * y + e[ 6 ];
-		this.y = e[ 1 ] * x + e[ 4 ] * y + e[ 7 ];
-
-		return this;
-
-	}
-
-	min( v ) {
-
-		this.x = Math.min( this.x, v.x );
-		this.y = Math.min( this.y, v.y );
-
-		return this;
-
-	}
-
-	max( v ) {
-
-		this.x = Math.max( this.x, v.x );
-		this.y = Math.max( this.y, v.y );
-
-		return this;
-
-	}
-
-	clamp( min, max ) {
-
-		// assumes min < max, componentwise
-
-		this.x = Math.max( min.x, Math.min( max.x, this.x ) );
-		this.y = Math.max( min.y, Math.min( max.y, this.y ) );
-
-		return this;
-
-	}
-
-	clampScalar( minVal, maxVal ) {
-
-		this.x = Math.max( minVal, Math.min( maxVal, this.x ) );
-		this.y = Math.max( minVal, Math.min( maxVal, this.y ) );
-
-		return this;
-
-	}
-
-	clampLength( min, max ) {
-
-		const length = this.length();
-
-		return this.divideScalar( length || 1 ).multiplyScalar( Math.max( min, Math.min( max, length ) ) );
-
-	}
-
-	floor() {
-
-		this.x = Math.floor( this.x );
-		this.y = Math.floor( this.y );
-
-		return this;
-
-	}
-
-	ceil() {
-
-		this.x = Math.ceil( this.x );
-		this.y = Math.ceil( this.y );
-
-		return this;
-
-	}
-
-	round() {
-
-		this.x = Math.round( this.x );
-		this.y = Math.round( this.y );
-
-		return this;
-
-	}
-
-	roundToZero() {
-
-		this.x = ( this.x < 0 ) ? Math.ceil( this.x ) : Math.floor( this.x );
-		this.y = ( this.y < 0 ) ? Math.ceil( this.y ) : Math.floor( this.y );
-
-		return this;
-
-	}
-
-	negate() {
-
-		this.x = - this.x;
-		this.y = - this.y;
-
-		return this;
-
-	}
-
-	dot( v ) {
-
-		return this.x * v.x + this.y * v.y;
-
-	}
-
-	cross( v ) {
-
-		return this.x * v.y - this.y * v.x;
-
-	}
-
-	lengthSq() {
-
-		return this.x * this.x + this.y * this.y;
-
-	}
-
-	length() {
-
-		return Math.sqrt( this.x * this.x + this.y * this.y );
-
-	}
-
-	manhattanLength() {
-
-		return Math.abs( this.x ) + Math.abs( this.y );
-
-	}
-
-	normalize() {
-
-		return this.divideScalar( this.length() || 1 );
-
-	}
-
-	angle() {
-
-		// computes the angle in radians with respect to the positive x-axis
-
-		const angle = Math.atan2( - this.y, - this.x ) + Math.PI;
-
-		return angle;
-
-	}
-
-	distanceTo( v ) {
-
-		return Math.sqrt( this.distanceToSquared( v ) );
-
-	}
-
-	distanceToSquared( v ) {
-
-		const dx = this.x - v.x, dy = this.y - v.y;
-		return dx * dx + dy * dy;
-
-	}
-
-	manhattanDistanceTo( v ) {
-
-		return Math.abs( this.x - v.x ) + Math.abs( this.y - v.y );
-
-	}
-
-	setLength( length ) {
-
-		return this.normalize().multiplyScalar( length );
-
-	}
-
-	lerp( v, alpha ) {
-
-		this.x += ( v.x - this.x ) * alpha;
-		this.y += ( v.y - this.y ) * alpha;
-
-		return this;
-
-	}
-
-	lerpVectors( v1, v2, alpha ) {
-
-		this.x = v1.x + ( v2.x - v1.x ) * alpha;
-		this.y = v1.y + ( v2.y - v1.y ) * alpha;
-
-		return this;
-
-	}
-
-	equals( v ) {
-
-		return ( ( v.x === this.x ) && ( v.y === this.y ) );
-
-	}
-
-	fromArray( array, offset = 0 ) {
-
-		this.x = array[ offset ];
-		this.y = array[ offset + 1 ];
-
-		return this;
-
-	}
-
-	toArray( array = [], offset = 0 ) {
-
-		array[ offset ] = this.x;
-		array[ offset + 1 ] = this.y;
-
-		return array;
-
-	}
-
-	fromBufferAttribute( attribute, index ) {
-
-		this.x = attribute.getX( index );
-		this.y = attribute.getY( index );
-
-		return this;
-
-	}
-
-	rotateAround( center, angle ) {
-
-		const c = Math.cos( angle ), s = Math.sin( angle );
-
-		const x = this.x - center.x;
-		const y = this.y - center.y;
-
-		this.x = x * c - y * s + center.x;
-		this.y = x * s + y * c + center.y;
-
-		return this;
-
-	}
-
-	random() {
-
-		this.x = Math.random();
-		this.y = Math.random();
-
-		return this;
-
-	}
-
-	*[ Symbol.iterator ]() {
-
-		yield this.x;
-		yield this.y;
-
-	}
-
+  *[Symbol.iterator]() {
+    yield this.x
+    yield this.y
+  }
 }

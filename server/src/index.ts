@@ -36,6 +36,8 @@ io.on('connection', (socket) => {
 
   entity.addComponent(new ControlledMovement())
 
+  console.log(state.entities)
+
   socket.on('inputAction', (inputActions) => {
     for (const inputAction of inputActions) {
       if (entity.hasComponent(ControlledMovement)) {
@@ -75,12 +77,12 @@ io.on('connection', (socket) => {
   })
 })
 
-const fps = 120
+const fps = 60
 const funcs: any[] = []
 const skip = Symbol('skip')
 const start = Date.now()
 let time = start
-let lastFrameTimestamp = Date.now();
+let lastFrameTimestamp = Date.now()
 
 const animFrame = () => {
   const fns = funcs.slice()
@@ -88,7 +90,7 @@ const animFrame = () => {
 
   const t = Date.now()
   const dt = t - lastFrameTimestamp
-  lastFrameTimestamp = t;
+  lastFrameTimestamp = t
   const t1 = 1e3 / fps
 
   for(const f of fns)
@@ -111,7 +113,7 @@ animFrame()
 
 const gameLoop = (dt: number) => {
   for (const system of systems) {
-    const filteredEntities = state.entities.filter(gameObject => system.appliesTo(gameObject))
+    const filteredEntities = state.entities.filter(entity => system.appliesTo(entity))
 
     system.update(dt, filteredEntities)
   }

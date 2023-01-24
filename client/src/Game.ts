@@ -1,7 +1,7 @@
 import { EntityType, State } from 'geem-core'
 import { Entity } from './Entities/Entity'
 import { Socket } from 'socket.io-client'
-import { AmbientLight, BoxGeometry, Mesh, MeshBasicMaterial, PerspectiveCamera, Scene, WebGLRenderer, Object3D } from 'three'
+import { AmbientLight, BoxGeometry, Mesh, MeshBasicMaterial, PerspectiveCamera, Scene, WebGLRenderer } from 'three'
 import { InputHandler } from './InputHandler'
 import { Player } from './Entities/Player'
 
