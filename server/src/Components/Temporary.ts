@@ -2,11 +2,14 @@ import { ComponentType } from 'geem-core'
 import { Component } from './Component'
 
 export class Temporary extends Component {
-  public ms: number
-
-  constructor(ms: number) {
+  constructor(public ms: number) {
     super(ComponentType.TEMPORARY)
-    
-    this.ms = ms
+  }
+
+  public toJSON() {
+    return {
+      type: this.type,
+      ms: this.ms,
+    }
   }
 }

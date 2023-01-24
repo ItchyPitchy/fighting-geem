@@ -20,7 +20,7 @@ const io = new Server({
 
 const state: State = {
   players: [],
-  entities: []
+  entities: [],
 }
 
 io.on('connection', (socket) => {

@@ -1,9 +1,9 @@
-import { ComponentType } from 'geem-core'
+import { ComponentType, JSON } from 'geem-core'
 
 export class Component {
-  private type: ComponentType
+  constructor(protected readonly type: ComponentType) {}
 
-  constructor(type: ComponentType) {
-    this.type = type
+  public toJSON(): JSON {
+    throw new Error('Component#toJSON not implemented')
   }
 }

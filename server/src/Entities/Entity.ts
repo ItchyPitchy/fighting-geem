@@ -1,59 +1,42 @@
-import { EntityType } from 'geem-core'
+import { EntityType, JSON } from 'geem-core'
+import { Component } from '../Components/Component'
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export type Constructor<T> = new (...args: any[]) => T
 
-// TODO: Use or remove interface??
-export interface EntityInterface {
-  id: string
-  type: EntityType
-  position: {
-    x: number
-    y: number
-  }
-
-  getComponent<T>(type: Constructor<T>): T
-  addComponent(component: object): void
-  addComponents(components: object[]): void
-  hasComponent(type: Constructor<object>): boolean
-  hasComponents(...type: Constructor<object>[]): boolean
-}
-
 export class Entity {
-  private readonly components: object[] = []
-  public id: string
-  public type: EntityType // TODO: Rename EntityType
-  public position: {
-    x: number
-    y: number
-  }
+  protected readonly components: Component[] = []
 
-  constructor(id: string, type: EntityType, position: { x: number, y: number }) {
-    this.id = id
-    this.type = type
-    this.position = position
-  }
+  constructor(
+    public readonly id: string,
+    public type: EntityType,
+    public position: {
+      x: number
+      y: number
+    },
+  ) {}
 
   public getComponent<T>(type: Constructor<T>): T {
     for (const component of this.components) {
       if (component instanceof type) {
-        return component as unknown as T
+        return component
       }
     }
 
-    throw 'No component available, use Entity#hasComponent to check existance first.'
+    throw new Error('No component available, use Entity#hasComponent to check existance first.')
   }
 
-  public addComponent(component: object): void {
+  public addComponent(component: Component): void {
     this.components.push(component)
   }
 
-  public addComponents(...components: object[]): void {
+  public addComponents(...components: Component[]): void {
     for (const component of components) {
       this.addComponent(component)
     }
   }
 
-  public hasComponent(type: Constructor<object>): boolean {
+  public hasComponent(type: Constructor<Component>): boolean {
     for (const component of this.components) {
       if (component instanceof type) {
         return true
@@ -63,7 +46,7 @@ export class Entity {
     return false
   }
 
-  public hasComponents(...types: Constructor<object>[]): boolean {
+  public hasComponents(...types: Constructor<Component>[]): boolean {
     for (const type of types) {
       if (!this.hasComponent(type)) {
         return false
@@ -71,5 +54,9 @@ export class Entity {
     }
 
     return true
+  }
+
+  public toJSON(): JSON {
+    throw new Error('Entity#toJSON not implemented')
   }
 }

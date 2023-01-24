@@ -5,14 +5,15 @@ export class Player extends Entity {
   constructor(id: string, position: { x: number, y: number }) {
     super(id, EntityType.PLAYER, position)
 
-    // this.addComponent()
+    // this.getComponent(Temporary)
   }
 
-  public serialize() {
+  public toJSON() {
     return {
       id: this.id,
       position: this.position,
       type: this.type,
+      components: this.components.map((component) => component.toJSON())
     }
   }
 }

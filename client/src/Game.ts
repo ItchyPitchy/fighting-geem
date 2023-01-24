@@ -29,7 +29,7 @@ export class Game {
     window.addEventListener('resize', this.onResize.bind(this))
 
     socket.on('state', (state: State) => {
-      console.log(this.scene.children)
+      console.log('state', state)
 
       const objectsForDeletion = this.entities.filter((entity) => !state.entities.find((serverEntity) => serverEntity.id === entity.id))
       for (const objectForDeletion of objectsForDeletion) {
