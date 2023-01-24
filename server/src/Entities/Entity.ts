@@ -1,19 +1,17 @@
-import { EntityType, JSON } from 'geem-core'
+import { EntityType, Vector } from 'geem-core'
 import { Component } from '../Components/Component'
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export type Constructor<T> = new (...args: any[]) => T
+export type JSON = { [key: string]: string | number | boolean | JSON[] | JSON | any }
 
 export class Entity {
-  protected readonly components: Component[] = []
+  public readonly components: Component[] = []
+  public position = new Vector(0, 0)
 
   constructor(
     public readonly id: string,
     public type: EntityType,
-    public position: {
-      x: number
-      y: number
-    },
   ) {}
 
   public getComponent<T>(type: Constructor<T>): T {

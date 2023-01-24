@@ -29,8 +29,6 @@ export class Game {
     window.addEventListener('resize', this.onResize.bind(this))
 
     socket.on('state', (state: State) => {
-      console.log('state', state)
-
       const objectsForDeletion = this.entities.filter((entity) => !state.entities.find((serverEntity) => serverEntity.id === entity.id))
       for (const objectForDeletion of objectsForDeletion) {
         const index = this.entities.indexOf(objectForDeletion)
@@ -83,6 +81,7 @@ export class Game {
   }
 
   private update() {
+    this.inputHandler.update()
     this.renderer.render(this.scene, this.camera)
     requestAnimationFrame(this.update.bind(this))
   }

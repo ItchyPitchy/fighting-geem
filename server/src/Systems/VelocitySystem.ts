@@ -11,6 +11,5 @@ export class VelocitySystem extends System {
   }
 
   public update(dt: number, entities: Entity[]): void {
-    console.log('velocity system ran')
   }
 }
