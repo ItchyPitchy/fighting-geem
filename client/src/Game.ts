@@ -4,6 +4,7 @@ import { Socket } from 'socket.io-client'
 import { AmbientLight, BoxGeometry, Mesh, MeshBasicMaterial, PerspectiveCamera, Scene, WebGLRenderer } from 'three'
 import { InputHandler } from './InputHandler'
 import { Player } from './Entities/Player'
+import { MouseMoveHandler } from './MouseMoveHandler'
 
 export class Game {
   private running = false
@@ -11,6 +12,7 @@ export class Game {
   private camera = new PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000)
   private renderer: WebGLRenderer
   private inputHandler: InputHandler
+  private mouseMoveHandler: MouseMoveHandler
   private players: Mesh[] = []
   
   private entities: Entity[] = []
@@ -24,7 +26,8 @@ export class Game {
 
     const light = new AmbientLight(0x404040)
     this.scene.add(light)
-    this.inputHandler = new InputHandler(socket)
+    this.inputHandler = new InputHandler(socket, this)
+    this.mouseMoveHandler = new MouseMoveHandler(socket, this)
 
     window.addEventListener('resize', this.onResize.bind(this))
 
@@ -81,6 +84,7 @@ export class Game {
   }
 
   private update() {
+    this.mouseMoveHandler.update()
     this.inputHandler.update()
     this.renderer.render(this.scene, this.camera)
     requestAnimationFrame(this.update.bind(this))

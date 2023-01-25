@@ -15,8 +15,6 @@ export class ControlledMovementSystem extends System {
     for (const entity of entities) {
       const controlledMovementComponent = entity.getComponent(ControlledMovement)
       const movement = controlledMovementComponent.movement
-
-      if (movement.size === 0) return
       
       const direction = new Vector(0, 0)
       const speed = controlledMovementComponent.speed
@@ -40,6 +38,7 @@ export class ControlledMovementSystem extends System {
       if (direction.length() > 0) {
         entity.position.add(direction.clone().normalize().multiplyScalar(speed).multiplyScalar(dt * 0.001))
       }
+      
       movement.clear()
     }
   }
