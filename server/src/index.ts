@@ -1,14 +1,17 @@
 import { Server } from 'socket.io'
-import { State } from 'geem-core'
+import { InputAction, State } from 'geem-core'
 import { Punch } from './Entities/Punch'
 import { DamageSystem } from './Systems/DamageSystem'
 import { VelocitySystem } from './Systems/VelocitySystem'
 import { Temporary } from './Components/Temporary'
 import { Player } from './Entities/Player'
+import { ControlledMovement, Movement } from './Components/ControlledMovement'
+import { ControlledMovementSystem } from './Systems/ControlledMovementSystem'
 
 const systems = [
   new DamageSystem(),
-  new VelocitySystem()
+  new VelocitySystem(),
+  new ControlledMovementSystem()
 ]
 
 const io = new Server({ 
@@ -25,25 +28,26 @@ const state: State = {
 
 io.on('connection', (socket) => {
   console.log('connected state', state)
-  const entity = new Player(socket.id, { x: 0, y: 0 })
 
-  state.entities.push(entity)
   state.players.push(socket.id)
 
-  socket.on('moveUp', () => {
-    entity.position.y += 0.2
-  })
+  const entity = new Player(socket.id)
+  state.entities.push(entity)
 
-  socket.on('moveDown', () => {
-    entity.position.y -= 0.2
-  })
+  entity.addComponent(new ControlledMovement())
 
-  socket.on('moveLeft', () => {
-    entity.position.x -= 0.2
-  })
+  console.log(state.entities)
 
-  socket.on('moveRight', () => {
-    entity.position.x += 0.2
+  socket.on('inputAction', (inputActions) => {
+    for (const inputAction of inputActions) {
+      if (entity.hasComponent(ControlledMovement)) {
+        const controlledMovementComponent = entity.getComponent(ControlledMovement)
+        if (inputAction === InputAction.MOVEUP) { controlledMovementComponent.movement.add(Movement.UP)} 
+        else if (inputAction === InputAction.MOVEDOWN) { controlledMovementComponent.movement.add(Movement.DOWN) } 
+        else if (inputAction === InputAction.MOVELEFT) { controlledMovementComponent.movement.add(Movement.LEFT) }
+        else if (inputAction === InputAction.MOVERIGHT) { controlledMovementComponent.movement.add(Movement.RIGHT) }
+      }
+    }
   })
 
   socket.on('punch', () => {
@@ -51,7 +55,8 @@ io.on('connection', (socket) => {
     const id = (Math.random() * 10000).toString()
 
     if (player) {
-      const entity = new Punch(id, player.position.x, player.position.y)
+      const entity = new Punch(id)
+      entity.position.set(player.position.x, player.position.y)
       entity.addComponent(new Temporary(1000))
       
       state.entities.push(entity)
@@ -77,13 +82,15 @@ const funcs: any[] = []
 const skip = Symbol('skip')
 const start = Date.now()
 let time = start
+let lastFrameTimestamp = Date.now()
 
 const animFrame = () => {
   const fns = funcs.slice()
   funcs.length = 0
 
   const t = Date.now()
-  const dt = t - start
+  const dt = t - lastFrameTimestamp
+  lastFrameTimestamp = t
   const t1 = 1e3 / fps
 
   for(const f of fns)
@@ -106,7 +113,7 @@ animFrame()
 
 const gameLoop = (dt: number) => {
   for (const system of systems) {
-    const filteredEntities = state.entities.filter(gameObject => system.appliesTo(gameObject))
+    const filteredEntities = state.entities.filter(entity => system.appliesTo(entity))
 
     system.update(dt, filteredEntities)
   }
@@ -116,14 +123,8 @@ const gameLoop = (dt: number) => {
 
 requestAnimationFrame(gameLoop)
 
-
-
-// setInterval(() => { // Game loop
-// }, 1000 / 60)
-
 setInterval(() => { // Sync loop  
   io.emit('state', state)
 }, 60)
-
 
 io.listen(3000)

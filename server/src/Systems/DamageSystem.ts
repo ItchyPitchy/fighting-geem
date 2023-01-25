@@ -11,6 +11,5 @@ export class DamageSystem extends System {
   }
 
   public update(dt: number, entities: Entity[]): void {
-    console.log('Damagesystem ran')
   }
 }

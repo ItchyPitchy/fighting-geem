@@ -14,4 +14,15 @@ export enum EntityType {
 
 export enum ComponentType {
   TEMPORARY,
+  CONTROLLED_MOVEMENT
+}
+
+export enum InputAction {
+  MOVEUP,
+  MOVEDOWN,
+  MOVELEFT,
+  MOVERIGHT,
+  PRIMARY_ATTACK,
+  SECONDARY_ATTACK,
+  DODGE
 }
