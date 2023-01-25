@@ -1,9 +1,14 @@
 import { EntityType } from 'geem-core'
+import { ControlledAim } from '../Components/ControlledAim'
+import { ControlledMovement } from '../Components/ControlledMovement'
 import { Entity } from './Entity'
 
 export class Player extends Entity {
   constructor(id: string) {
     super(id, EntityType.PLAYER)
+
+    this.addComponent(new ControlledMovement())
+    this.addComponent(new ControlledAim())
   }
 
   public toJSON() {

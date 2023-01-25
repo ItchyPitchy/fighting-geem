@@ -13,8 +13,10 @@ export enum EntityType {
 }
 
 export enum ComponentType {
-  TEMPORARY,
-  CONTROLLED_MOVEMENT
+  DECAYING,
+  CONTROLLED_MOVEMENT,
+  CONTROLLED_AIM,
+  PHYSICAL
 }
 
 export enum InputAction {

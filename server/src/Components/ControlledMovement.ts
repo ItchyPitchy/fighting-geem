@@ -18,6 +18,7 @@ export class ControlledMovement extends Component {
 
   public toJSON() {
     return {
+      type: this.type,
       speed: this.speed
     }
   }

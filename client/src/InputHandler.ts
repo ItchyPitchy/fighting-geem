@@ -1,22 +1,22 @@
 import { Socket } from 'socket.io-client'
 import { InputAction } from 'geem-core'
+import { Game } from './Game'
 
 export class InputHandler {
   private readonly inputActions = new Set<InputAction>()
   private readonly socket: Socket
 
-  constructor(socket: Socket) {
+  constructor(socket: Socket, game: Game) {
     this.socket = socket
 
     document.addEventListener('keydown', this.onKeyDown.bind(this))
     document.addEventListener('keyup', this.onKeyUp.bind(this))
-    // document.addEventListener('mousedown', this.onMouseDown.bind(this))
-    // document.addEventListener('mouseup', this.onMouseUp.bind(this))
+    document.addEventListener('mousedown', this.onMouseDown.bind(this))
   }
 
   private onMouseDown(event: MouseEvent): void {
     if (event.buttons === 1) {
-      this.inputActions.add(InputAction.PRIMARY_ATTACK)
+      this.socket.emit("punch")
     } else if (event.buttons === 2) {
       this.inputActions.add(InputAction.SECONDARY_ATTACK)
     }
