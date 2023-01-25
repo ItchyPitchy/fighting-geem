@@ -1,7 +1,7 @@
-import { Entity } from 'geem-core'
 import { GameServer } from '..'
-import { Decaying } from '../Components/Decaying'
 import { System } from './System'
+import { Entity } from '../Entities/Entity'
+import { Decaying } from '../Components/Decaying'
 
 export class DecaySystem extends System {
   constructor() {

@@ -4,7 +4,9 @@ export type Constructor<T> = new (...args: any[]) => T
 
 export class Entity {
   private readonly components: object[] = []
+
   public id: string
+
   public object: Object3D
 
   constructor(id: string, object: Object3D) {

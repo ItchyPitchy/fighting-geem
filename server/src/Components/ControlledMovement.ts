@@ -10,6 +10,7 @@ export enum Movement {
 
 export class ControlledMovement extends Component {
   public movement = new Set<Movement>()
+
   public speed = 1
 
   constructor() {
@@ -19,7 +20,7 @@ export class ControlledMovement extends Component {
   public toJSON() {
     return {
       type: this.type,
-      speed: this.speed
+      speed: this.speed,
     }
   }
 }

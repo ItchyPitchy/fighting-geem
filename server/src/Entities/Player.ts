@@ -16,10 +16,10 @@ export class Player extends Entity {
       id: this.id,
       position: {
         x: this.position.x,
-        y: this.position.y
+        y: this.position.y,
       },
       type: this.type,
-      components: this.components.map((component) => component.toJSON())
+      components: this.components.map((component) => component.toJSON()),
     }
   }
 }

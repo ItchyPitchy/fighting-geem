@@ -4,6 +4,7 @@ import { Game } from './Game'
 
 export class MouseMoveHandler {
   private readonly direction = new Vector(0, 0)
+
   private readonly socket: Socket
 
   constructor(socket: Socket, game: Game) {
@@ -13,8 +14,8 @@ export class MouseMoveHandler {
   }
 
   private onMouseMove(event: MouseEvent): void {
-    const x = event.clientX;
-    const y = event.clientY;
+    const x = event.clientX
+    const y = event.clientY
 
     this.direction.set(x - window.innerWidth/2, window.innerHeight/2 - y)
   }

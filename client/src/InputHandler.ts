@@ -4,6 +4,7 @@ import { Game } from './Game'
 
 export class InputHandler {
   private readonly inputActions = new Set<InputAction>()
+
   private readonly socket: Socket
 
   constructor(socket: Socket, game: Game) {
@@ -16,7 +17,7 @@ export class InputHandler {
 
   private onMouseDown(event: MouseEvent): void {
     if (event.buttons === 1) {
-      this.socket.emit("punch")
+      this.socket.emit('punch')
     } else if (event.buttons === 2) {
       this.inputActions.add(InputAction.SECONDARY_ATTACK)
     }
@@ -31,7 +32,7 @@ export class InputHandler {
   }
 
   private onKeyDown(event: KeyboardEvent): void {
-    if (event.key === 'w') { 
+    if (event.key === 'w') {
       this.inputActions.add(InputAction.MOVEUP)
     } else if (event.key === 's') {
       this.inputActions.add(InputAction.MOVEDOWN)

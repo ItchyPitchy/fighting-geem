@@ -1,5 +1,5 @@
-import { Entity } from 'geem-core'
 import { GameServer } from '../index'
+import { Entity } from '../Entities/Entity'
 
 export class System {
   public appliesTo(entity: Entity): boolean {

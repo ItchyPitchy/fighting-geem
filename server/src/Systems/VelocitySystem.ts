@@ -1,6 +1,6 @@
-import { Entity } from 'geem-core'
-import { Physical } from '../Components/Physical'
 import { System } from './System'
+import { Entity } from '../Entities/Entity'
+import { Physical } from '../Components/Physical'
 
 export class VelocitySystem extends System {
   constructor() {

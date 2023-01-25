@@ -1,5 +1,5 @@
-import { Entity } from 'geem-core'
 import { System } from './System'
+import { Entity } from '../Entities/Entity'
 
 export class DamageSystem extends System {
   constructor() {
@@ -11,5 +11,6 @@ export class DamageSystem extends System {
   }
 
   public update(dt: number, entities: Entity[]): void {
+    throw new Error('Not implemented')
   }
 }

@@ -1,5 +1,6 @@
-import { Entity, Vector } from 'geem-core'
+import { Vector } from 'geem-core'
 import { ControlledAim } from '../Components/ControlledAim'
+import { Entity } from '../Entities/Entity'
 import { System } from './System'
 
 export class ControlledAimSystem extends System {
@@ -14,7 +15,7 @@ export class ControlledAimSystem extends System {
   public update(dt: number, entities: Entity[]): void {
     for (const entity of entities) {
       const controlledAimComponent = entity.getComponent(ControlledAim)
-      const direction = controlledAimComponent.direction;
+      const direction = controlledAimComponent.direction
 
     }
   }

@@ -13,7 +13,7 @@ export class ControlledAim extends Component {
       type: this.type,
       direction: {
         x: this.direction.x,
-        y: this.direction.y
+        y: this.direction.y,
       },
     }
   }

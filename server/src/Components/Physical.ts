@@ -12,8 +12,8 @@ export class Physical extends Component {
       weight: this.weight,
       velocity: {
         x: this.velocity.x,
-        y: this.velocity.y
-      }
+        y: this.velocity.y,
+      },
     }
   }
 }

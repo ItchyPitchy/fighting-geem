@@ -1,20 +1,28 @@
-import { EntityType, State } from 'geem-core'
+import { EntityType, StateDto } from 'geem-core'
 import { Entity } from './Entities/Entity'
 import { Socket } from 'socket.io-client'
-import { AmbientLight, BoxGeometry, Mesh, MeshBasicMaterial, PerspectiveCamera, Scene, WebGLRenderer } from 'three'
+import {
+  AmbientLight, BoxGeometry, Mesh, MeshBasicMaterial, PerspectiveCamera, Scene, WebGLRenderer,
+} from 'three'
 import { InputHandler } from './InputHandler'
 import { Player } from './Entities/Player'
 import { MouseMoveHandler } from './MouseMoveHandler'
 
 export class Game {
   private running = false
+
   private scene = new Scene()
+
   private camera = new PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000)
+
   private renderer: WebGLRenderer
+
   private inputHandler: InputHandler
+
   private mouseMoveHandler: MouseMoveHandler
+
   private players: Mesh[] = []
-  
+
   private entities: Entity[] = []
 
   constructor(canvas: HTMLCanvasElement, socket: Socket) {
@@ -31,7 +39,7 @@ export class Game {
 
     window.addEventListener('resize', this.onResize.bind(this))
 
-    socket.on('state', (state: State) => {
+    socket.on('state', (state: StateDto) => {
       const objectsForDeletion = this.entities.filter((entity) => !state.entities.find((serverEntity) => serverEntity.id === entity.id))
       for (const objectForDeletion of objectsForDeletion) {
         const index = this.entities.indexOf(objectForDeletion)
@@ -40,7 +48,7 @@ export class Game {
       }
 
       for (const serverEntity of state.entities) {
-        const entity = this.entities.find(entity => serverEntity.id === entity.id)
+        const entity = this.entities.find((entity) => serverEntity.id === entity.id)
 
         if (entity) {
           entity.object.position.set(serverEntity.position.x, serverEntity.position.y, 0)
@@ -51,7 +59,7 @@ export class Game {
               const material = new MeshBasicMaterial({ color: 0x00ff00 })
               const cube = new Mesh(geometry, material)
               cube.position.set(serverEntity.position.x, serverEntity.position.y, 0)
-              
+
               this.entities.push(new Player(serverEntity.id, cube))
               this.scene.add(cube)
 
@@ -62,7 +70,7 @@ export class Game {
               const material = new MeshBasicMaterial({ color: 0xff0000 })
               const cube = new Mesh(geometry, material)
               cube.position.set(serverEntity.position.x, serverEntity.position.y, 0)
-              
+
               this.entities.push(new Player(serverEntity.id, cube))
               this.scene.add(cube)
 
