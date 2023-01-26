@@ -2,6 +2,7 @@ import { Vector } from 'geem-core'
 import { System } from './System'
 import { Entity } from '../Entities/Entity'
 import { ControlledMovement, Movement } from '../Components/ControlledMovement'
+import { Physical } from '../Components/Physical'
 
 export class ControlledMovementSystem extends System {
   constructor() {
@@ -36,9 +37,7 @@ export class ControlledMovementSystem extends System {
         direction.add(new Vector(1, 0))
       }
 
-      if (direction.length() > 0) {
-        entity.position.add(direction.clone().normalize().multiplyScalar(speed).multiplyScalar(dt * 0.001))
-      }
+      controlledMovementComponent.direction = direction.clone().normalize()
 
       movement.clear()
     }

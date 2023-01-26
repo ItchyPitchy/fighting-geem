@@ -16,10 +16,9 @@ export class DecaySystem extends System {
     for (const entity of entities) {
       const decayingComponent = entity.getComponent(Decaying)
       const callBack = decayingComponent.callBack
-
-      decayingComponent.ms = decayingComponent.ms - dt
-
-      if (decayingComponent.ms <= 0) {
+      decayingComponent.s = decayingComponent.s - dt
+      
+      if (decayingComponent.s <= 0) {
         callBack()
       }
     }

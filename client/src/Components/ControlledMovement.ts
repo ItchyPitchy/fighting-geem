@@ -18,15 +18,4 @@ export class ControlledMovement extends Component {
   constructor() {
     super(ComponentType.CONTROLLED_MOVEMENT)
   }
-
-  public toJSON() {
-    return {
-      type: this.type,
-      speed: this.speed,
-      direction: {
-        x: this.direction.x,
-        y: this.direction.y,
-      },
-    }
-  }
 }

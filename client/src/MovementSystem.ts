@@ -1,12 +1,8 @@
-import { System } from './System'
-import { Entity } from '../Entities/Entity'
-import { Physical } from '../Components/Physical'
+import { Entity } from './Entities/Entity'
+import { Physical } from './Components/Physical'
+import { Vector3 } from 'three'
 
-export class VelocitySystem extends System {
-  constructor() {
-    super()
-  }
-
+export class VelocitySystem {
   public appliesTo(entity: Entity): boolean {
     return entity.hasComponent(Physical)
   }
@@ -16,7 +12,11 @@ export class VelocitySystem extends System {
       const physicalComponent = entity.getComponent(Physical)
       const weight = physicalComponent.weight
       const velocity = physicalComponent.velocity
-      entity.position.add(velocity.clone().multiplyScalar(dt))
+      entity.object.position.add(new Vector3(
+        velocity.clone().multiplyScalar(dt).x,
+        velocity.clone().multiplyScalar(dt).y,
+        0,
+      ))
     }
   }
 }

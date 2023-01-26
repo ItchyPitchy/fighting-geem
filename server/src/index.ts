@@ -1,4 +1,4 @@
-import { Server } from 'socket.io'
+import { Server as SocketServer, ServerOptions } from 'socket.io'
 import { InputAction } from 'geem-core'
 import { Punch } from './Entities/Punch'
 import { Player } from './Entities/Player'
@@ -11,10 +11,29 @@ import { Decaying } from './Components/Decaying'
 import { Entity } from './Entities/Entity'
 import { Physical } from './Components/Physical'
 import { ControlledAim } from './Components/ControlledAim'
+import { MovementSystem } from './Systems/MovementSystem'
 
 interface State {
   players: string[]
   entities: Entity[]
+}
+
+type EventParams = [
+  'state',
+  State,
+]
+
+class Server {
+  public readonly socketServer: SocketServer
+
+  constructor(opts?: Partial<ServerOptions>) {
+    this.socketServer = new SocketServer(opts)
+  }
+
+  public emit(...args: EventParams) {
+    const [ eventName, eventData ] = args
+    return this.socketServer.emit(eventName, eventData)
+  }
 }
 
 const fps = 60
@@ -70,11 +89,11 @@ export class GameServer {
 
   private update(dt: number) {
     if (!this.running) return
-
+    this.io.emit('state', this.state)
     for (const system of this.systems) {
       const filteredEntities = this.state.entities.filter((entity) => system.appliesTo(entity))
 
-      system.update(dt, filteredEntities, this)
+      system.update(dt * 0.001, filteredEntities, this)
     }
 
     requestAnimationFrame(this.update.bind(this))
@@ -94,9 +113,9 @@ export class GameServer {
 
   public start() {
     this.running = true
-    this.io.listen(3000)
+    this.io.socketServer.listen(3000)
 
-    this.io.on('connection', (socket) => {
+    this.io.socketServer.on('connection', (socket) => {
       console.log('connected state', this.state)
       this.state.players.push(socket.id)
 
@@ -153,18 +172,14 @@ export class GameServer {
 
           entity.position.set(player.position.x, player.position.y)
           entity.addComponent(new Physical(0, controlledAimComponent.direction.clone().normalize()))
-          entity.addComponent(new Decaying(2000, () => this.removeEntity(entity)))
+          entity.addComponent(new Decaying(2, () => this.removeEntity(entity)))
 
           this.state.entities.push(entity)
         }
       })
-
-      setInterval(() => { // Sync loop
-        this.io.emit('state', this.state)
-      }, 60)
-
-      this.update(0.14)
     })
+
+    this.update(0.14)
   }
 
   public stop() {
@@ -176,4 +191,5 @@ const gameServer = new GameServer()
 gameServer.addSystem(new ControlledMovementSystem())
 gameServer.addSystem(new DecaySystem())
 gameServer.addSystem(new VelocitySystem())
+gameServer.addSystem(new MovementSystem())
 gameServer.start()

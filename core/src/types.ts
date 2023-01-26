@@ -30,7 +30,19 @@ export interface DecayingDto extends Component {
   type: ComponentType.DECAYING,
 }
 
-export type ComponentDto = DecayingDto
+export interface PhysicalDto extends Component {
+  type: ComponentType.PHYSICAL,
+  velocity: { x: number, y: number },
+  weight: number
+}
+
+export interface ControlledMovement extends Component {
+  type: ComponentType.CONTROLLED_MOVEMENT,
+  speed: number,
+  direction: { x: number, y: number }
+}
+
+export type ComponentDto = DecayingDto | PhysicalDto | ControlledMovement
 
 interface Entity {
   id: string
@@ -39,7 +51,7 @@ interface Entity {
     y: number
   },
   type: EntityType
-  components: ComponentDto
+  components: ComponentDto[]
 }
 
 export interface PlayerDto extends Entity {

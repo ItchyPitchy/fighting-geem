@@ -50,14 +50,14 @@ export class Vector {
 
   setComponent(index: number, value: number) {
     switch (index) {
-    case 0:
-      this.x = value
-      break
-    case 1:
-      this.y = value
-      break
-    default:
-      throw new Error('index is out of range: ' + index)
+      case 0:
+        this.x = value
+        break
+      case 1:
+        this.y = value
+        break
+      default:
+        throw new Error('index is out of range: ' + index)
     }
 
     return this
@@ -65,12 +65,12 @@ export class Vector {
 
   getComponent(index: number) {
     switch (index) {
-    case 0:
-      return this.x
-    case 1:
-      return this.y
-    default:
-      throw new Error('index is out of range: ' + index)
+      case 0:
+        return this.x
+      case 1:
+        return this.y
+      default:
+        throw new Error('index is out of range: ' + index)
     }
   }
 
@@ -193,7 +193,7 @@ export class Vector {
     const length = this.length()
 
     return this.divideScalar(length || 1).multiplyScalar(
-      Math.max(min, Math.min(max, length))
+      Math.max(min, Math.min(max, length)),
     )
   }
 

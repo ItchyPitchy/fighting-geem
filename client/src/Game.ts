@@ -1,12 +1,18 @@
-import { EntityType, StateDto } from 'geem-core'
+import {
+  ComponentType, EntityType, Vector, StateDto,
+} from 'geem-core'
 import { Entity } from './Entities/Entity'
 import { Socket } from 'socket.io-client'
 import {
-  AmbientLight, BoxGeometry, Mesh, MeshBasicMaterial, PerspectiveCamera, Scene, WebGLRenderer,
+  AmbientLight, BoxGeometry, Mesh, MeshBasicMaterial, PerspectiveCamera, Scene, Vector3, WebGLRenderer,
 } from 'three'
 import { InputHandler } from './InputHandler'
 import { Player } from './Entities/Player'
 import { MouseMoveHandler } from './MouseMoveHandler'
+import { ControlledMovement } from './Components/ControlledMovement'
+import { Physical } from './Components/Physical'
+import { VelocitySystem } from './VelocitySystem'
+import { ControlledMovementSystem } from './ControlledMovementSystem'
 
 export class Game {
   private running = false
@@ -21,9 +27,17 @@ export class Game {
 
   private mouseMoveHandler: MouseMoveHandler
 
+  private velocitySystem = new VelocitySystem()
+
   private players: Mesh[] = []
 
+  private lastFrame = Date.now()
+
   private entities: Entity[] = []
+
+  private systems: any[] = [
+    new VelocitySystem(), new ControlledMovementSystem(),
+  ]
 
   constructor(canvas: HTMLCanvasElement, socket: Socket) {
     this.renderer = new WebGLRenderer({ canvas: canvas })
@@ -49,33 +63,84 @@ export class Game {
 
       for (const serverEntity of state.entities) {
         const entity = this.entities.find((entity) => serverEntity.id === entity.id)
+        // if entity exists already,
+        // check which components it has on server side, add new component based on component typeif its missing,
+        // add component values,
+        // if client-entity has component and missing on server, remove component.
 
         if (entity) {
-          entity.object.position.set(serverEntity.position.x, serverEntity.position.y, 0)
+          if (entity.object.position.manhattanDistanceTo(new Vector3(serverEntity.position.x, serverEntity.position.y, 0)) > 0.02) { // SYNC POSITION IF DIFFERENCE TOO BIG
+            entity.object.position.set(serverEntity.position.x, serverEntity.position.y, 0)
+            console.log('synced position lol')
+          }
+
+          entity.components = entity.components.filter((component) => serverEntity.components.find((x) => x.type === component.type))
+
+          for (const serverEntityComponent of serverEntity.components) {
+            switch (serverEntityComponent.type) {
+              case ComponentType.CONTROLLED_MOVEMENT:
+                if (!entity.hasComponent(ControlledMovement)) {
+                  const controlledMovement = new ControlledMovement()
+                  controlledMovement.direction = new Vector(serverEntityComponent.direction.x, serverEntityComponent.direction.y)
+                  controlledMovement.speed = serverEntityComponent.speed
+                  entity.addComponent(controlledMovement)
+                } else {
+                  const controlledMovement = entity.getComponent(ControlledMovement)
+                  controlledMovement.direction = new Vector(serverEntityComponent.direction.x, serverEntityComponent.direction.y)
+                  controlledMovement.speed = serverEntityComponent.speed
+                }
+                break
+              case ComponentType.PHYSICAL:
+                if (!entity.hasComponent(Physical)) {
+                  entity.addComponent(new Physical(serverEntityComponent.weight, new Vector(serverEntityComponent.velocity.x, serverEntityComponent.velocity.y)))
+                } else {
+                  const physical = entity.getComponent(Physical)
+                  physical.weight = serverEntityComponent.weight
+                  physical.velocity.set(serverEntityComponent.velocity.x, serverEntityComponent.velocity.y)
+                }
+                break
+            }
+          }
+
         } else {
+          // if entity doesnt exist, create entity based on entity type,
+          // check for components and add based on component type,
+          // add correct values to components.
+          // add entity to scene and push entityobject to entity array
+
+          let entity: Entity | null = null
           switch (serverEntity.type) {
             case EntityType.PLAYER: {
               const geometry = new BoxGeometry(1, 1, 1)
               const material = new MeshBasicMaterial({ color: 0x00ff00 })
-              const cube = new Mesh(geometry, material)
-              cube.position.set(serverEntity.position.x, serverEntity.position.y, 0)
-
-              this.entities.push(new Player(serverEntity.id, cube))
-              this.scene.add(cube)
+              entity = new Player(serverEntity.id, new Mesh(geometry, material))
 
               break
             }
             case EntityType.PUNCH: {
               const geometry = new BoxGeometry(1, 1, 1)
               const material = new MeshBasicMaterial({ color: 0xff0000 })
-              const cube = new Mesh(geometry, material)
-              cube.position.set(serverEntity.position.x, serverEntity.position.y, 0)
-
-              this.entities.push(new Player(serverEntity.id, cube))
-              this.scene.add(cube)
+              entity = new Player(serverEntity.id, new Mesh(geometry, material))
 
               break
             }
+          }
+
+          if (entity) {
+            for (const serverEntityComponent of serverEntity.components) {
+              switch (serverEntityComponent.type) {
+                case ComponentType.CONTROLLED_MOVEMENT:
+                  entity.addComponent(new ControlledMovement())
+                  break
+                case ComponentType.PHYSICAL:
+                  entity.addComponent(new Physical(serverEntityComponent.weight, new Vector(serverEntityComponent.velocity.x, serverEntityComponent.velocity.y)))
+                  break
+              }
+            }
+
+            entity.object.position.set(serverEntity.position.x, serverEntity.position.y, 0)
+            this.scene.add(entity.object)
+            this.entities.push(entity)
           }
         }
       }
@@ -92,8 +157,18 @@ export class Game {
   }
 
   private update() {
+    const now = Date.now()
+    const dt = now - this.lastFrame
+
+    for (const system of this.systems) {
+      const filteredEntities = this.entities.filter((entity) => system.appliesTo(entity))
+      system.update(dt * 0.001, filteredEntities)
+    }
+
     this.mouseMoveHandler.update()
     this.inputHandler.update()
+
+    this.lastFrame = now
     this.renderer.render(this.scene, this.camera)
     requestAnimationFrame(this.update.bind(this))
   }

@@ -1,40 +1,38 @@
 import { Object3D } from 'three'
+import { Component } from '../Components/Component'
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export type Constructor<T> = new (...args: any[]) => T
 
 export class Entity {
-  private readonly components: object[] = []
+  public components: Component[] = []
 
-  public id: string
-
-  public object: Object3D
-
-  constructor(id: string, object: Object3D) {
-    this.id = id
-    this.object = object
-  }
+  constructor(
+    public readonly id: string,
+    public object: Object3D,
+  ) {}
 
   public getComponent<T>(type: Constructor<T>): T {
     for (const component of this.components) {
       if (component instanceof type) {
-        return component as unknown as T
+        return component
       }
     }
 
-    throw 'No component available, use Entity#hasComponent to check existance first.'
+    throw new Error('No component available, use Entity#hasComponent to check existance first.')
   }
 
-  public addComponent(component: object): void {
+  public addComponent(component: Component): void {
     this.components.push(component)
   }
 
-  public addComponents(...components: object[]): void {
+  public addComponents(...components: Component[]): void {
     for (const component of components) {
       this.addComponent(component)
     }
   }
 
-  public hasComponent(type: Constructor<object>): boolean {
+  public hasComponent(type: Constructor<Component>): boolean {
     for (const component of this.components) {
       if (component instanceof type) {
         return true
@@ -44,7 +42,7 @@ export class Entity {
     return false
   }
 
-  public hasComponents(...types: Constructor<object>[]): boolean {
+  public hasComponents(...types: Constructor<Component>[]): boolean {
     for (const type of types) {
       if (!this.hasComponent(type)) {
         return false
