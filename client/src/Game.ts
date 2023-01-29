@@ -1,45 +1,33 @@
 import {
-  ComponentType, EntityType, Vector, StateDto, ServerToClientEvents, ClientToServerEvents,
+  ComponentType, EntityType, Vector, ServerToClientEvents, ClientToServerEvents,
 } from 'geem-core'
 import { Entity } from './Entities/Entity'
 import { Socket } from 'socket.io-client'
 import {
   AmbientLight, BoxGeometry, Mesh, MeshBasicMaterial, PerspectiveCamera, Scene, Vector3, WebGLRenderer,
 } from 'three'
-import { InputHandler } from './InputHandler'
 import { Player } from './Entities/Player'
-import { MouseMoveHandler } from './MouseMoveHandler'
 import { ControlledMovement } from './Components/ControlledMovement'
 import { Physical } from './Components/Physical'
-import { VelocitySystem } from './VelocitySystem'
-import { ControlledMovementSystem } from './ControlledMovementSystem'
+import { System } from './Systems/System'
 
 export class Game {
-  private running = false
-
   private scene = new Scene()
 
   private camera = new PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000)
 
   private renderer: WebGLRenderer
 
-  private inputHandler: InputHandler
-
-  private mouseMoveHandler: MouseMoveHandler
-
-  private velocitySystem = new VelocitySystem()
-
-  private players: Mesh[] = []
-
   private lastFrame = Date.now()
 
   private entities: Entity[] = []
 
-  private systems: any[] = [
-    new VelocitySystem(), new ControlledMovementSystem(),
-  ]
+  private systems: System[] = []
+
+  public readonly socket: Socket<ServerToClientEvents, ClientToServerEvents>
 
   constructor(canvas: HTMLCanvasElement, socket: Socket<ServerToClientEvents, ClientToServerEvents>) {
+    this.socket = socket
     this.renderer = new WebGLRenderer({ canvas: canvas })
     this.renderer.setSize(window.innerWidth, window.innerHeight)
 
@@ -48,8 +36,6 @@ export class Game {
 
     const light = new AmbientLight(0x404040)
     this.scene.add(light)
-    this.inputHandler = new InputHandler(socket, this)
-    this.mouseMoveHandler = new MouseMoveHandler(socket, this)
 
     window.addEventListener('resize', this.onResize.bind(this))
 
@@ -69,9 +55,17 @@ export class Game {
         // if client-entity has component and missing on server, remove component.
 
         if (entity) {
-          if (entity.object.position.manhattanDistanceTo(new Vector3(serverEntity.position.x, serverEntity.position.y, 0)) > 0.02) { // SYNC POSITION IF DIFFERENCE TOO BIG
-            entity.object.position.set(serverEntity.position.x, serverEntity.position.y, 0)
-            console.log('synced position lol')
+
+          if (socket.id !== serverEntity.id) {
+            if (entity.object.position.manhattanDistanceTo(new Vector3(serverEntity.position.x, serverEntity.position.y, 0)) > 0.02) { // SYNC POSITION IF DIFFERENCE TOO BIG
+              entity.object.position.set(serverEntity.position.x, serverEntity.position.y, 0)
+              console.log('hard synced position')
+            }
+          } else {
+            if (entity.object.position.manhattanDistanceTo(new Vector3(serverEntity.position.x, serverEntity.position.y, 0)) > 0.4) { // SYNC POSITION IF DIFFERENCE TOO BIG
+              entity.object.position.set(serverEntity.position.x, serverEntity.position.y, 0)
+              console.log('hard synced position')
+            }
           }
 
           entity.components = entity.components.filter((component) => serverEntity.components.find((x) => x.type === component.type))
@@ -148,12 +142,7 @@ export class Game {
   }
 
   public start() {
-    this.running = true
     this.update()
-  }
-
-  public stop() {
-    this.running = false
   }
 
   private update() {
@@ -162,15 +151,20 @@ export class Game {
 
     for (const system of this.systems) {
       const filteredEntities = this.entities.filter((entity) => system.appliesTo(entity))
-      system.update(dt * 0.001, filteredEntities)
+      system.update(dt * 0.001, filteredEntities, this)
     }
-
-    this.mouseMoveHandler.update()
-    this.inputHandler.update()
 
     this.lastFrame = now
     this.renderer.render(this.scene, this.camera)
     requestAnimationFrame(this.update.bind(this))
+  }
+
+  public addSystem(system: System) {
+    this.systems.push(system)
+  }
+
+  public addEntity(entity: Entity) {
+    this.entities.push(entity)
   }
 
   private onResize() {

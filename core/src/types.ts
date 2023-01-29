@@ -83,5 +83,5 @@ export interface ServerToClientEvents {
 export interface ClientToServerEvents {
   punch: () => void
   inputAction: (actions: InputAction[]) => void
-  mouseMoveAction: (direction: Vector) => void
+  mouseMoveAction: (direction: {x: number, y: number}) => void
 }

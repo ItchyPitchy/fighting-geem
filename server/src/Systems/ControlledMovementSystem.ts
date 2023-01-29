@@ -19,7 +19,6 @@ export class ControlledMovementSystem extends System {
       const movement = controlledMovementComponent.movement
 
       const direction = new Vector(0, 0)
-      const speed = controlledMovementComponent.speed
 
       if (movement.has(Movement.UP)) {
         direction.add(new Vector(0, 1))

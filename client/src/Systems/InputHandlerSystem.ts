@@ -1,25 +1,27 @@
-import { Socket } from 'socket.io-client'
-import { InputAction } from 'geem-core'
-import { Game } from './Game'
+import { InputAction, Vector } from 'geem-core'
+import { Game } from '../Game'
+import { System } from './System'
+import { Entity } from '../Entities/Entity'
+import { ControlledMovement } from '../Components/ControlledMovement'
 
-export class InputHandler {
+export class InputHandlerSystem extends System {
   private readonly inputActions = new Set<InputAction>()
 
-  private readonly socket: Socket
-
-  constructor(socket: Socket, game: Game) {
-    this.socket = socket
+  constructor() {
+    super()
 
     document.addEventListener('keydown', this.onKeyDown.bind(this))
     document.addEventListener('keyup', this.onKeyUp.bind(this))
     document.addEventListener('mousedown', this.onMouseDown.bind(this))
   }
 
+  public appliesTo(entity: Entity): boolean {
+    return entity.hasComponent(ControlledMovement)
+  }
+
   private onMouseDown(event: MouseEvent): void {
     if (event.buttons === 1) {
-      this.socket.emit('punch')
-    } else if (event.buttons === 2) {
-      this.inputActions.add(InputAction.SECONDARY_ATTACK)
+      this.inputActions.add(InputAction.PRIMARY_ATTACK)
     }
   }
 
@@ -59,8 +61,40 @@ export class InputHandler {
     }
   }
 
-  public update(): void {
+  public update(dt: number, filteredEntities: Entity[], game: Game): void {
     if (this.inputActions.size === 0) return
-    this.socket.emit('inputAction', Array.from(this.inputActions))
+
+    for (const entity of filteredEntities) { //Make movement feel instant
+      if (entity.id === game.socket.id) {
+        const controlledMovement = entity.getComponent(ControlledMovement)
+
+        const direction = new Vector(0, 0)
+
+        if (this.inputActions.has(InputAction.MOVEUP)) {
+          direction.add(new Vector(0, 1))
+        }
+
+        if (this.inputActions.has(InputAction.MOVEDOWN)) {
+          direction.add(new Vector(0, -1))
+        }
+
+        if (this.inputActions.has(InputAction.MOVELEFT)) {
+          direction.add(new Vector(-1, 0))
+        }
+
+        if (this.inputActions.has(InputAction.MOVERIGHT)) {
+          direction.add(new Vector(1, 0))
+        }
+
+        controlledMovement.direction = direction.normalize().clone()
+      }
+    }
+
+    game.socket.emit('inputAction', Array.from(this.inputActions))
+
+    if (this.inputActions.has(InputAction.PRIMARY_ATTACK)) {
+      game.socket.emit('punch')
+      this.inputActions.delete(InputAction.PRIMARY_ATTACK)
+    }
   }
 }

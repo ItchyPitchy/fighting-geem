@@ -1,5 +1,5 @@
-import { Entity } from './Entities/Entity'
-import { Physical } from './Components/Physical'
+import { Entity } from '../Entities/Entity'
+import { Physical } from '../Components/Physical'
 import { Vector3 } from 'three'
 
 export class VelocitySystem {

@@ -16,7 +16,7 @@ import { Physical } from './Components/Physical'
 import { ControlledAim } from './Components/ControlledAim'
 import { MovementSystem } from './Systems/MovementSystem'
 
-const fps = 60
+const fps = 120
 const funcs: any[] = []
 const skip = Symbol('skip')
 const start = Date.now()
