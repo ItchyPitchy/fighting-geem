@@ -1,7 +1,7 @@
 import { ComponentType, Vector } from 'geem-core'
 import { Component } from './Component'
 
-export class Physical extends Component {
+export class Physical extends Component<ComponentType.PHYSICAL> {
   constructor(public weight: number, public velocity: Vector) {
     super(ComponentType.PHYSICAL)
   }

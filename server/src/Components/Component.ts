@@ -1,9 +1,9 @@
-import { ComponentType, JSON } from 'geem-core'
+import { ComponentDto, ComponentType } from 'geem-core'
 
-export class Component {
-  constructor(public readonly type: ComponentType) {}
+export class Component<T extends ComponentType = ComponentType> {
+  constructor(public readonly type: T) {}
 
-  public toJSON(): JSON {
+  public toJSON(): ComponentDto {
     throw new Error('Component#toJSON not implemented')
   }
 }

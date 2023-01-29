@@ -1,7 +1,7 @@
 import { ComponentType, Vector } from 'geem-core'
 import { Component } from './Component'
 
-export class ControlledAim extends Component {
+export class ControlledAim extends Component<ComponentType.CONTROLLED_AIM> {
   public direction = new Vector(0, 0)
 
   constructor() {

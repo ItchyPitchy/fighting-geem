@@ -8,7 +8,7 @@ export enum Movement {
   RIGHT
 }
 
-export class ControlledMovement extends Component {
+export class ControlledMovement extends Component<ComponentType.CONTROLLED_MOVEMENT> {
   public movement = new Set<Movement>()
 
   public direction = new Vector(0, 0)

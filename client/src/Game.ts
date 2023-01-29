@@ -1,5 +1,5 @@
 import {
-  ComponentType, EntityType, Vector, StateDto,
+  ComponentType, EntityType, Vector, StateDto, ServerToClientEvents, ClientToServerEvents,
 } from 'geem-core'
 import { Entity } from './Entities/Entity'
 import { Socket } from 'socket.io-client'
@@ -39,7 +39,7 @@ export class Game {
     new VelocitySystem(), new ControlledMovementSystem(),
   ]
 
-  constructor(canvas: HTMLCanvasElement, socket: Socket) {
+  constructor(canvas: HTMLCanvasElement, socket: Socket<ServerToClientEvents, ClientToServerEvents>) {
     this.renderer = new WebGLRenderer({ canvas: canvas })
     this.renderer.setSize(window.innerWidth, window.innerHeight)
 
@@ -53,7 +53,7 @@ export class Game {
 
     window.addEventListener('resize', this.onResize.bind(this))
 
-    socket.on('state', (state: StateDto) => {
+    socket.on('state', (state) => {
       const objectsForDeletion = this.entities.filter((entity) => !state.entities.find((serverEntity) => serverEntity.id === entity.id))
       for (const objectForDeletion of objectsForDeletion) {
         const index = this.entities.indexOf(objectForDeletion)

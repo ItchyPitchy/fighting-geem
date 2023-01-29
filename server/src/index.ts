@@ -1,5 +1,8 @@
-import { Server as SocketServer, ServerOptions } from 'socket.io'
-import { InputAction } from 'geem-core'
+import { Server } from 'socket.io'
+import {
+  ClientToServerEvents,
+  InputAction, ServerToClientEvents,
+} from 'geem-core'
 import { Punch } from './Entities/Punch'
 import { Player } from './Entities/Player'
 import { ControlledMovement, Movement } from './Components/ControlledMovement'
@@ -12,29 +15,6 @@ import { Entity } from './Entities/Entity'
 import { Physical } from './Components/Physical'
 import { ControlledAim } from './Components/ControlledAim'
 import { MovementSystem } from './Systems/MovementSystem'
-
-interface State {
-  players: string[]
-  entities: Entity[]
-}
-
-type EventParams = [
-  'state',
-  State,
-]
-
-class Server {
-  public readonly socketServer: SocketServer
-
-  constructor(opts?: Partial<ServerOptions>) {
-    this.socketServer = new SocketServer(opts)
-  }
-
-  public emit(...args: EventParams) {
-    const [ eventName, eventData ] = args
-    return this.socketServer.emit(eventName, eventData)
-  }
-}
 
 const fps = 60
 const funcs: any[] = []
@@ -70,10 +50,18 @@ const cancelAnimationFrame = (id: number) => {
   funcs[id] = skip
 }
 
+interface State {
+  players: string[]
+  entities: Entity[]
+}
+
 export class GameServer {
   private running = false
 
-  private io = new Server({
+  private io = new Server<
+    ClientToServerEvents,
+    ServerToClientEvents
+  >({
     cors: {
       origin: 'http://localhost:1234',
       methods: [ 'GET', 'POST' ],
@@ -89,7 +77,10 @@ export class GameServer {
 
   private update(dt: number) {
     if (!this.running) return
-    this.io.emit('state', this.state)
+    this.io.emit('state', {
+      players: this.state.players,
+      entities: this.state.entities.map((entity) => entity.toJSON()),
+    })
     for (const system of this.systems) {
       const filteredEntities = this.state.entities.filter((entity) => system.appliesTo(entity))
 
@@ -113,9 +104,9 @@ export class GameServer {
 
   public start() {
     this.running = true
-    this.io.socketServer.listen(3000)
+    this.io.listen(3000)
 
-    this.io.socketServer.on('connection', (socket) => {
+    this.io.on('connection', (socket) => {
       console.log('connected state', this.state)
       this.state.players.push(socket.id)
 

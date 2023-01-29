@@ -1,3 +1,5 @@
+import { Vector } from './Vector'
+
 export type JSON = { [key: string]: string | number | boolean | JSON[] | JSON }
 
 export enum InputAction {
@@ -36,13 +38,18 @@ export interface PhysicalDto extends Component {
   weight: number
 }
 
-export interface ControlledMovement extends Component {
+export interface ControlledMovementDto extends Component {
   type: ComponentType.CONTROLLED_MOVEMENT,
   speed: number,
   direction: { x: number, y: number }
 }
 
-export type ComponentDto = DecayingDto | PhysicalDto | ControlledMovement
+export interface ControlledAimDto extends Component {
+  type: ComponentType.CONTROLLED_AIM,
+  direction: { x: number, y: number }
+}
+
+export type ComponentDto = DecayingDto | PhysicalDto | ControlledMovementDto | ControlledAimDto
 
 interface Entity {
   id: string
@@ -67,4 +74,14 @@ export type EntityDto = PlayerDto | PunchDto
 export interface StateDto {
   players: string[]
   entities: EntityDto[]
+}
+
+export interface ServerToClientEvents {
+  state: (data: StateDto) => void
+}
+
+export interface ClientToServerEvents {
+  punch: () => void
+  inputAction: (actions: InputAction[]) => void
+  mouseMoveAction: (direction: Vector) => void
 }

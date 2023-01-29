@@ -1,5 +1,5 @@
 import type {
-  StateDto, ComponentDto, PlayerDto, PunchDto, DecayingDto, JSON,
+  StateDto, ComponentDto, PlayerDto, PunchDto, DecayingDto, JSON, ClientToServerEvents, ServerToClientEvents,
 } from './types'
 import {
   EntityType, ComponentType, InputAction,
@@ -17,4 +17,6 @@ export {
   Vector,
   ComponentType,
   InputAction,
+  ClientToServerEvents,
+  ServerToClientEvents,
 }

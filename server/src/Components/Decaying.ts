@@ -1,7 +1,7 @@
 import { ComponentType } from 'geem-core'
 import { Component } from './Component'
 
-export class Decaying extends Component {
+export class Decaying extends Component<ComponentType.DECAYING> {
   constructor(public s: number, public callBack: () => void) {
     super(ComponentType.DECAYING)
   }

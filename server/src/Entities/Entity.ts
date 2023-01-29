@@ -1,5 +1,7 @@
 import {
-  EntityType, JSON, Vector,
+  EntityDto,
+  EntityType,
+  Vector,
 } from 'geem-core'
 import { Component } from '../Components/Component'
 
@@ -56,7 +58,7 @@ export class Entity {
     return true
   }
 
-  public toJSON(): JSON {
+  public toJSON(): EntityDto {
     throw new Error('Entity#toJSON not implemented')
   }
 }

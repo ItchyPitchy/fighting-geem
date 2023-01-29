@@ -1,7 +1,8 @@
-import { io } from 'socket.io-client'
+import { io, Socket } from 'socket.io-client'
+import { ClientToServerEvents, ServerToClientEvents } from 'geem-core'
 import { Game } from './Game'
 
-const socket = io('http://localhost:3000')
+const socket: Socket<ServerToClientEvents, ClientToServerEvents> = io('http://localhost:3000')
 
 socket.on('connect', () => {
   const canvas = document.getElementById('game') as HTMLCanvasElement

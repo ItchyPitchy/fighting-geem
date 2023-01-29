@@ -135,7 +135,7 @@
         "max-len": [
             "error",
             {
-                "code": 80
+                "code": 200
             }
         ],
         "multiline-ternary": [
