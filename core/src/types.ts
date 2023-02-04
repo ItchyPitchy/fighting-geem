@@ -21,7 +21,8 @@ export enum ComponentType {
   DECAYING,
   CONTROLLED_MOVEMENT,
   CONTROLLED_AIM,
-  PHYSICAL
+  PHYSICAL,
+  CAMERA_FOCUS
 }
 
 interface Component {

@@ -10,11 +10,10 @@ import { Player } from './Entities/Player'
 import { ControlledMovement } from './Components/ControlledMovement'
 import { Physical } from './Components/Physical'
 import { System } from './Systems/System'
+import { CameraFocus } from './Components/CameraFocus'
 
 export class Game {
   private scene = new Scene()
-
-  private camera = new PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000)
 
   private renderer: WebGLRenderer
 
@@ -23,6 +22,8 @@ export class Game {
   private entities: Entity[] = []
 
   private systems: System[] = []
+
+  public camera = new PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000)
 
   public readonly socket: Socket<ServerToClientEvents, ClientToServerEvents>
 
@@ -68,7 +69,7 @@ export class Game {
             }
           }
 
-          entity.components = entity.components.filter((component) => serverEntity.components.find((x) => x.type === component.type))
+          entity.components = entity.components.filter((component) => serverEntity.components.find((x) => x.type === component.type) || component.clientComponentOnly)
 
           for (const serverEntityComponent of serverEntity.components) {
             switch (serverEntityComponent.type) {
@@ -130,6 +131,11 @@ export class Game {
                   entity.addComponent(new Physical(serverEntityComponent.weight, new Vector(serverEntityComponent.velocity.x, serverEntityComponent.velocity.y)))
                   break
               }
+            }
+
+            // If entity is yours (has same id as socket.id), add camera focus component, etc.
+            if (entity.id === socket.id) {
+              entity.addComponent(new CameraFocus())
             }
 
             entity.object.position.set(serverEntity.position.x, serverEntity.position.y, 0)
